@@ -31,7 +31,7 @@ class Client:
         data = resp.json()
 
         if "chain" in data:
-            logger.debug(f"{self.label} KING network preference is set to {data['chain']}\n")
+            logger.debug(f"{self.label} KING network preference is set to {data['chain']}")
             return True
 
         return False

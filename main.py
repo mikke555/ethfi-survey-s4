@@ -44,10 +44,8 @@ def main():
 
         client = Client(_id, key, proxy=proxy)
 
-        if client.get_preference():
-            continue
-
-        client.set_preference(message=MESSAGE)
+        if not client.get_preference():
+            client.set_preference(message=MESSAGE)
 
         if index < len(keys):
             sleep(*SLEEP_BETWEEN_WALLETS)
