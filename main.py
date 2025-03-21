@@ -8,7 +8,7 @@ from modules.client import Client
 from modules.config import logger
 
 CHOICE = "swell"  # ethereum | swell | arbitrum | base
-USE_PROXY = True
+USE_PROXY = False
 SHUFFLE_KEYS = False
 SLEEP_BETWEEN_WALLETS = [20, 40]
 
