@@ -9,13 +9,14 @@ from modules.http import HttpClient
 
 
 class Client:
-    BASE_URL = "https://app.ether.fi/api/king-claim-chain"
+    KING_PRICE = 652.07
+    BASE_URL = "https://app.ether.fi/api"
 
     def __init__(self, _id: str, private_key: str, proxy=None):
         self.account = Account.from_key(private_key)
         self.address = self.account.address
         self.label = f"{_id} {self.address} | EtherFI |"
-        self.http = HttpClient(proxy=proxy)
+        self.http = HttpClient(self.BASE_URL, proxy)
 
     def __str__(self) -> str:
         return f"Wallet(address={self.address})"
@@ -26,24 +27,36 @@ class Client:
 
         return "0x" + signed_message.signature.hex()
 
-    def get_preference(self):
-        resp = self.http.get(f"{self.BASE_URL}/{self.address}")
+    def get_allocation(self) -> None:
+        resp = self.http.get(f"/king/{self.address}")
+        data = resp.json()
+
+        if "Amount" in data:
+            human_amount = int(data["Amount"]) / 10**18
+            amount_usd = human_amount * self.KING_PRICE
+            logger.debug(f"{self.label} Your restaking rewards: {round(human_amount, 3)} KING (${amount_usd:.2f})")
+        else:
+            logger.warning(f"{self.label} This wallet has no restaking rewards")
+
+    def get_preference(self) -> bool:
+        resp = self.http.get(f"/king-claim-chain/{self.address}")
         data = resp.json()
 
         if "chain" in data:
             logger.debug(f"{self.label} KING network preference is set to {data['chain']}")
+            self.get_allocation()
             return True
 
         return False
 
-    def set_preference(self, message):
+    def set_preference(self, message: str) -> bool:
         signature = self.sign_message(message)
         payload = {"address": self.address, "message": message, "signature": signature}
 
-        resp = self.http.post(f"{self.BASE_URL}/{self.address}", json=payload)
+        resp = self.http.post(f"/king-claim-chain/{self.address}", json=payload)
         data = resp.json()
 
-        if data.get("success"):
+        if "success" in data:
             logger.success(f"{self.label} Success")
             time.sleep(random.randint(3, 7))
             return self.get_preference()
