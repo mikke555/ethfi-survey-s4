@@ -1,6 +1,5 @@
 import requests
 from requests.adapters import HTTPAdapter
-from requests.exceptions import HTTPError
 from urllib3.util.retry import Retry
 
 from modules.config import headers
@@ -27,12 +26,7 @@ class HttpClient(requests.Session):
 
     def _request(self, method, endpoint, *args, **kwargs):
         url = f"{self.base_url}{endpoint}"
-        resp = super().request(method, url, *args, **kwargs)
-
-        if resp.status_code not in [200, 201]:
-            raise HTTPError(f"{resp.status_code} {resp.reason}")
-
-        return resp
+        return super().request(method, url, *args, **kwargs)
 
     def get(self, endpoint, *args, **kwargs):
         return self._request("GET", endpoint, *args, **kwargs)

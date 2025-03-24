@@ -31,12 +31,14 @@ class Client:
         resp = self.http.get(f"/king/{self.address}")
         data = resp.json()
 
-        if "Amount" in data:
+        if resp.status_code == 200 and "Amount" in data:
             human_amount = int(data["Amount"]) / 10**18
             amount_usd = human_amount * self.KING_PRICE
             logger.debug(f"{self.label} Your restaking rewards: {round(human_amount, 3)} KING (${amount_usd:.2f})")
-        else:
+        elif resp.status_code == 500 and "error" in data:
             logger.warning(f"{self.label} This wallet has no restaking rewards")
+        else:
+            logger.warning(f"{self.label} <{resp.status_code}> {resp.text}")
 
     def get_preference(self) -> bool:
         resp = self.http.get(f"/king-claim-chain/{self.address}")
