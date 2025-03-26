@@ -9,7 +9,7 @@ from modules.http import HttpClient
 
 
 class Client:
-    KING_PRICE = 652.07
+    KING_PRICE = 711.71
     BASE_URL = "https://app.ether.fi/api"
 
     def __init__(self, _id: str, private_key: str, proxy=None):
@@ -34,7 +34,7 @@ class Client:
         if resp.status_code == 200 and "Amount" in data:
             human_amount = int(data["Amount"]) / 10**18
             amount_usd = human_amount * self.KING_PRICE
-            logger.debug(f"{self.label} Your restaking rewards: {round(human_amount, 3)} KING (${amount_usd:.2f})")
+            logger.debug(f"{self.label} Your restaking rewards: {human_amount:.6f} KING (${amount_usd:.2f})")
         elif resp.status_code == 500 and "error" in data:
             logger.warning(f"{self.label} This wallet has no restaking rewards")
         else:
